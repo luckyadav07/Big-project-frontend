@@ -1,15 +1,13 @@
 /**
  * App.jsx
  * Root router — defines all public and protected routes.
- *
- * Public (GuestRoute): /login, /register — redirect to dashboard if logged in
- * Protected (ProtectedRoute): /dashboard, /jobs — require valid JWT
  */
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Jobs from "./pages/Jobs.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import GuestRoute from "./components/GuestRoute.jsx";
 
@@ -19,7 +17,7 @@ function App() {
       {/* Default redirect */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      {/* Public auth pages — redirect if already logged in */}
+      {/* Public auth pages */}
       <Route
         path="/login"
         element={
@@ -28,6 +26,7 @@ function App() {
           </GuestRoute>
         }
       />
+
       <Route
         path="/register"
         element={
@@ -37,7 +36,7 @@ function App() {
         }
       />
 
-      {/* Protected pages — require authentication */}
+      {/* Protected pages */}
       <Route
         path="/dashboard"
         element={
@@ -46,15 +45,12 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/jobs"
         element={
           <ProtectedRoute>
-            <div className="min-h-screen flex items-center justify-center bg-slate-50">
-              <h1 className="text-2xl font-bold text-slate-700">
-                Jobs Page Coming Soon
-              </h1>
-            </div>
+            <Jobs />
           </ProtectedRoute>
         }
       />
