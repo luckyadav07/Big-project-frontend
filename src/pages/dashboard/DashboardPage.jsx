@@ -5,16 +5,13 @@ import { useAuth } from "../../context/AuthContext.jsx";
 import StatCard from "../../components/dashboard/StatCard.jsx";
 import JobCard from "../../components/job/JobCard.jsx";
 import Card from "../../components/common/Card.jsx";
-import Badge from "../../components/common/Badge.jsx";
 import Skeleton from "../../components/common/Skeleton.jsx";
 import useJobStore from "../../store/jobStore.js";
-import { MOCK_APPLICATIONS, DASHBOARD_STATS, SKILL_RECOMMENDATIONS } from "../../utils/mockData.js";
-import { StatusBadge } from "../../components/application/ApplicationCard.jsx";
 import useUIStore from "../../store/uiStore.js";
 
 function DashboardPage() {
   const { user } = useAuth();
-  const { recommendedJobs, loading, fetchRecommended } = useJobStore();
+  const { recommendedJobs, loading, error, fetchRecommended } = useJobStore();
   const addToast = useUIStore((s) => s.addToast);
 
   useEffect(() => {
@@ -25,16 +22,19 @@ function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-white">Welcome back, {user?.name?.split(" ")[0]}!</h1>
-        <p className="text-gray-400 mt-1">
-          {DASHBOARD_STATS.matchScore}% match score · {DASHBOARD_STATS.jobsApplied} applications · {DASHBOARD_STATS.interviews} interviews
-        </p>
+        <p className="text-gray-400 mt-1">Your dashboard is connected to live data.</p>
+        {error && (
+          <div className="mt-4 rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-200">
+            {error}
+          </div>
+        )}
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={<Briefcase size={20} />} title="Jobs Applied" value={DASHBOARD_STATS.jobsApplied} trend="↑ 5 this week" color="green" />
-        <StatCard icon={<Phone size={20} />} title="Interview Calls" value={DASHBOARD_STATS.interviews} trend="↑ 2 this week" color="blue" />
-        <StatCard icon={<Target size={20} />} title="Match Score Avg" value={`${DASHBOARD_STATS.matchScore}%`} color="blue" />
-        <StatCard icon={<UserCheck size={20} />} title="Profile Completion" value={`${DASHBOARD_STATS.profileCompletion}%`} color="yellow" />
+        <StatCard icon={<Briefcase size={20} />} title="Jobs Applied" value="—" trend="—" color="green" />
+        <StatCard icon={<Phone size={20} />} title="Interview Calls" value="—" trend="—" color="blue" />
+        <StatCard icon={<Target size={20} />} title="Match Score Avg" value="—" color="blue" />
+        <StatCard icon={<UserCheck size={20} />} title="Profile Completion" value="—" color="yellow" />
       </div>
 
       <div className="grid lg:grid-cols-5 gap-6">
@@ -45,11 +45,15 @@ function DashboardPage() {
           </div>
           {loading ? (
             <div className="space-y-4">{[1, 2, 3].map((i) => <Skeleton key={i} height="120px" />)}</div>
-          ) : (
+          ) : recommendedJobs.length > 0 ? (
             <div className="grid gap-4">
               {recommendedJobs.slice(0, 3).map((job) => (
                 <JobCard key={job.id || job._id} job={job} onApply={() => addToast("Application submitted!", "success")} />
               ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-sm text-gray-400">
+              No recommended jobs are available right now.
             </div>
           )}
         </div>
@@ -66,42 +70,15 @@ function DashboardPage() {
 
       <Card>
         <h2 className="text-lg font-semibold text-white mb-4">Recent Applications</h2>
-        <div className="overflow-x-auto hidden md:block">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-400 border-b border-white/10">
-                <th className="pb-3 pr-4">Job Title</th>
-                <th className="pb-3 pr-4">Company</th>
-                <th className="pb-3 pr-4">Status</th>
-                <th className="pb-3 pr-4">Date Applied</th>
-                <th className="pb-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MOCK_APPLICATIONS.map((app) => (
-                <tr key={app.id} className="border-b border-white/5 hover:bg-white/5">
-                  <td className="py-3 pr-4 text-white">{app.jobTitle}</td>
-                  <td className="py-3 pr-4 text-gray-400">{app.company}</td>
-                  <td className="py-3 pr-4"><StatusBadge status={app.status} /></td>
-                  <td className="py-3 pr-4 text-gray-400">{app.dateApplied}</td>
-                  <td className="py-3"><Link to="/applications" className="text-accent hover:underline text-xs">View</Link></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-sm text-gray-400">
+          No recent applications are available yet.
         </div>
       </Card>
 
       <div>
         <h2 className="text-lg font-semibold text-white mb-4">Skill Recommendations</h2>
-        <div className="grid sm:grid-cols-3 gap-4">
-          {SKILL_RECOMMENDATIONS.map((s) => (
-            <Card key={s.id}>
-              <p className="font-semibold text-white">Learn {s.skill}</p>
-              <p className="text-sm text-gray-400 mt-1">{s.reason}</p>
-              <button className="mt-3 text-sm text-accent hover:underline">View Learning Path →</button>
-            </Card>
-          ))}
+        <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-sm text-gray-400">
+          Skill recommendations are not available yet.
         </div>
       </div>
     </div>

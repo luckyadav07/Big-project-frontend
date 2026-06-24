@@ -8,7 +8,7 @@ import Button from "../common/Button.jsx";
 import { getPasswordStrength } from "../../utils/validators.js";
 
 function RegisterForm() {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({ defaultValues: { role: "jobseeker" } });
   const password = watch("password", "");
   const strength = getPasswordStrength(password);
   const { login } = useAuth();
@@ -30,9 +30,9 @@ function RegisterForm() {
     setError("");
     setLoading(true);
     try {
-      const res = await registerUser({ name: data.name, email: data.email, password: data.password, role: "jobseeker" });
+      const res = await registerUser({ name: data.name, email: data.email, password: data.password, role: data.role });
       login(res.data.user, res.data.token);
-      navigate("/dashboard");
+      navigate(data.role === "admin" ? "/admin" : "/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
@@ -91,6 +91,16 @@ function RegisterForm() {
           validate: (v) => v === password || "Passwords do not match",
         })}
       />
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-1.5">Account Role</label>
+        <select
+          {...register("role", { required: "Please select an account role" })}
+          className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-accent"
+        >
+          <option value="jobseeker">Job Seeker</option>
+          <option value="admin">Job Admin</option>
+        </select>
+      </div>
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-1.5">Skills (optional)</label>
         <div className="flex gap-2">

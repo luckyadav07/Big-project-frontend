@@ -1,10 +1,9 @@
 import { useState } from "react";
 import NotificationCard from "../../components/notification/NotificationCard.jsx";
 import Button from "../../components/common/Button.jsx";
-import { MOCK_NOTIFICATIONS } from "../../utils/mockData.js";
 
 function NotificationsPage() {
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("all");
 
   const filtered = notifications.filter((n) => filter === "unread" ? !n.read : true);
@@ -33,9 +32,15 @@ function NotificationsPage() {
       </div>
 
       <div className="space-y-3">
-        {filtered.map((n) => (
-          <NotificationCard key={n.id} notification={n} onMarkRead={markRead} />
-        ))}
+        {filtered.length > 0 ? (
+          filtered.map((n) => (
+            <NotificationCard key={n.id} notification={n} onMarkRead={markRead} />
+          ))
+        ) : (
+          <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-sm text-gray-400">
+            No notifications are available yet.
+          </div>
+        )}
       </div>
     </div>
   );

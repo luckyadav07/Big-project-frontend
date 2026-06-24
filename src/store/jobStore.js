@@ -13,18 +13,18 @@ const useJobStore = create((set) => ({
     try {
       const res = await getAllJobs();
       set({ jobs: res.data || res, loading: false });
-    } catch {
-      set({ jobs: MOCK_JOBS, loading: false });
+    } catch (err) {
+      set({ jobs: [], loading: false, error: err.message || "Unable to load jobs." });
     }
   },
 
   fetchRecommended: async () => {
-    set({ loading: true });
+    set({ loading: true, error: null });
     try {
       const res = await getRecommendedJobs();
       set({ recommendedJobs: res.data || res, loading: false });
-    } catch {
-      set({ recommendedJobs: MOCK_JOBS.slice(0, 4), loading: false });
+    } catch (err) {
+      set({ recommendedJobs: [], loading: false, error: err.message || "Unable to load recommended jobs." });
     }
   },
 }));
