@@ -42,9 +42,12 @@ function AdminJobsManagement() {
 
     try {
       const response = await getAdminJobs();
-      setJobs(response?.jobs || response || []);
+      // Ensure response is always an array
+      const jobsArray = Array.isArray(response) ? response : [];
+      setJobs(jobsArray);
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Unable to load jobs.");
+      setJobs([]); // Reset to empty array on error
     } finally {
       setLoading(false);
     }
@@ -163,7 +166,7 @@ function AdminJobsManagement() {
                 <tr>
                   <td colSpan="6" className="px-4 py-8 text-center text-gray-400">Loading jobs...</td>
                 </tr>
-              ) : jobs.length === 0 ? (
+              ) : !Array.isArray(jobs) || jobs.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="px-4 py-8 text-center text-gray-400">No jobs found. Create the first job post to get started.</td>
                 </tr>

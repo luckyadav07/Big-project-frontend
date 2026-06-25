@@ -17,7 +17,12 @@ function ProtectedRoute({ adminOnly = false }) {
   }
 
   if (!token) return <Navigate to="/login" replace />;
-  if (adminOnly && user?.role !== "admin") return <Navigate to="/dashboard" replace />;
+
+  // Ensure user exists and has proper structure
+  if (!user || typeof user !== "object") return <Navigate to="/login" replace />;
+
+  // Check admin access: user must have role === 'admin'
+  if (adminOnly && user.role !== "admin") return <Navigate to="/dashboard" replace />;
 
   return (
     <DashboardLayout>

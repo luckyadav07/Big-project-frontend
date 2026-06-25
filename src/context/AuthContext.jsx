@@ -45,21 +45,23 @@ export const AuthProvider = ({ children }) => {
 
   // Restore session on page load / refresh
   useEffect(() => {
+    let isMounted = true;
+
     const restoreSession = async () => {
       const savedToken = localStorage.getItem("token");
       const savedUser = localStorage.getItem("user");
 
       if (!savedToken) {
-        setLoading(false);
+        if (isMounted) setLoading(false);
         return;
       }
 
-      setToken(savedToken);
+      if (isMounted) setToken(savedToken);
 
       // Optimistically restore user from localStorage for faster UI
       if (savedUser) {
         try {
-          setUser(JSON.parse(savedUser));
+          if (isMounted) setUser(JSON.parse(savedUser));
         } catch {
           localStorage.removeItem("user");
         }
@@ -68,17 +70,29 @@ export const AuthProvider = ({ children }) => {
       // Verify token with backend
       try {
         const data = await getCurrentUser();
-        setUser(data.data.user);
-        localStorage.setItem("user", JSON.stringify(data.data.user));
-      } catch {
-        logout();
+        if (isMounted) {
+          setUser(data.data.user);
+          localStorage.setItem("user", JSON.stringify(data.data.user));
+        }
+      } catch (error) {
+        if (isMounted) {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     restoreSession();
-  }, [logout]);
+
+    // Cleanup function to prevent state updates on unmounted component
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, logout }}>
