@@ -19,6 +19,7 @@ function AdminJobsManagement() {
   const [modalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState("");
   const [editingJob, setEditingJob] = useState(null);
+
   const [form, setForm] = useState({
     title: "",
     company: "",
@@ -28,13 +29,14 @@ function AdminJobsManagement() {
     description: "",
     status: "active",
   });
+
   const addToast = useUIStore((s) => s.addToast);
 
   useEffect(() => {
     fetchJobs();
   }, []);
 
-  const getJobId = (job) => job.id || job._id;
+  const getJobId = (job) => job?.id || job?._id;
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -42,9 +44,26 @@ function AdminJobsManagement() {
 
     try {
       const response = await getAdminJobs();
-      setJobs(response?.jobs || response || []);
+
+      const jobsArray =
+        Array.isArray(response)
+          ? response
+          : Array.isArray(response?.jobs)
+          ? response.jobs
+          : Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response?.data?.jobs)
+          ? response.data.jobs
+          : [];
+
+      setJobs(jobsArray);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Unable to load jobs.");
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Unable to load jobs."
+      );
+      setJobs([]);
     } finally {
       setLoading(false);
     }
@@ -67,6 +86,7 @@ function AdminJobsManagement() {
 
   const openEditModal = (job) => {
     setEditingJob(job);
+
     setForm({
       title: job.title || "",
       company: job.company || "",
@@ -76,6 +96,7 @@ function AdminJobsManagement() {
       description: job.description || "",
       status: job.status || "active",
     });
+
     setError("");
     setModalOpen(true);
   };
@@ -87,29 +108,61 @@ function AdminJobsManagement() {
   };
 
   const handleFieldChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     setSaving(true);
     setError("");
 
     try {
       if (editingJob) {
-        const response = await updateAdminJob(getJobId(editingJob), form);
-        const updatedJob = response?.job || response;
-        setJobs((prev) => prev.map((job) => (getJobId(job) === getJobId(updatedJob) ? updatedJob : job)));
+        const response = await updateAdminJob(
+          getJobId(editingJob),
+          form
+        );
+
+        const updatedJob =
+          response?.job ||
+          response?.data?.job ||
+          response?.data ||
+          response;
+
+        setJobs((prev) =>
+          prev.map((job) =>
+            getJobId(job) === getJobId(updatedJob)
+              ? updatedJob
+              : job
+          )
+        );
+
         addToast("Job updated successfully");
       } else {
         const response = await createAdminJob(form);
-        const createdJob = response?.job || response;
+
+        const createdJob =
+          response?.job ||
+          response?.data?.job ||
+          response?.data ||
+          response;
+
         setJobs((prev) => [createdJob, ...prev]);
+
         addToast("Job created successfully");
       }
+
       closeModal();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Unable to save job.");
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Unable to save job."
+      );
     } finally {
       setSaving(false);
     }
@@ -120,10 +173,21 @@ function AdminJobsManagement() {
 
     try {
       await deleteAdminJob(getJobId(job));
-      setJobs((prev) => prev.filter((item) => getJobId(item) !== getJobId(job)));
+
+      setJobs((prev) =>
+        prev.filter(
+          (item) => getJobId(item) !== getJobId(job)
+        )
+      );
+
       addToast("Job removed successfully");
     } catch (err) {
-      addToast(err.response?.data?.message || err.message || "Unable to delete job.", "danger");
+      addToast(
+        err.response?.data?.message ||
+          err.message ||
+          "Unable to delete job.",
+        "danger"
+      );
     }
   };
 
@@ -131,11 +195,18 @@ function AdminJobsManagement() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Job Management</h1>
-          <p className="text-gray-400">Manage job postings, update listings, and remove outdated roles.</p>
+          <h1 className="text-2xl font-bold text-white">
+            Job Management
+          </h1>
+          <p className="text-gray-400">
+            Manage job postings, update listings, and remove outdated
+            roles.
+          </p>
         </div>
+
         <Button size="sm" onClick={openCreateModal}>
-          <Plus size={16} /> Create Job
+          <Plus size={16} />
+          Create Job
         </Button>
       </div>
 
@@ -158,27 +229,76 @@ function AdminJobsManagement() {
                 <th className="px-4 py-3">Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="px-4 py-8 text-center text-gray-400">Loading jobs...</td>
+                  <td
+                    colSpan="6"
+                    className="px-4 py-8 text-center text-gray-400"
+                  >
+                    Loading jobs...
+                  </td>
                 </tr>
-              ) : jobs.length === 0 ? (
+              ) : !Array.isArray(jobs) || jobs.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-4 py-8 text-center text-gray-400">No jobs found. Create the first job post to get started.</td>
+                  <td
+                    colSpan="6"
+                    className="px-4 py-8 text-center text-gray-400"
+                  >
+                    No jobs found. Create the first job post to get
+                    started.
+                  </td>
                 </tr>
               ) : (
                 jobs.map((job) => (
-                  <tr key={getJobId(job)} className="border-t border-white/5 hover:bg-white/5">
-                    <td className="px-4 py-3 text-gray-400">{getJobId(job)}</td>
-                    <td className="px-4 py-3 text-white">{job.title}</td>
-                    <td className="px-4 py-3 text-gray-400">{job.company}</td>
-                    <td className="px-4 py-3 text-gray-400">{job.location || "—"}</td>
-                    <td className="px-4 py-3"><Badge variant={job.status === "active" ? "success" : "warning"}>{job.status || "draft"}</Badge></td>
+                  <tr
+                    key={getJobId(job)}
+                    className="border-t border-white/5 hover:bg-white/5"
+                  >
+                    <td className="px-4 py-3 text-gray-400">
+                      {getJobId(job)}
+                    </td>
+
+                    <td className="px-4 py-3 text-white">
+                      {job.title}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-400">
+                      {job.company}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-400">
+                      {job.location || "—"}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <Badge
+                        variant={
+                          job.status === "active"
+                            ? "success"
+                            : "warning"
+                        }
+                      >
+                        {job.status || "draft"}
+                      </Badge>
+                    </td>
+
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
-                        <button onClick={() => openEditModal(job)} className="text-accent hover:text-accent/80"><Edit size={16} /></button>
-                        <button onClick={() => handleDelete(job)} className="text-danger hover:text-danger/80"><Trash2 size={16} /></button>
+                        <button
+                          onClick={() => openEditModal(job)}
+                          className="text-accent hover:text-accent/80"
+                        >
+                          <Edit size={16} />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(job)}
+                          className="text-danger hover:text-danger/80"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -194,10 +314,20 @@ function AdminJobsManagement() {
           <div className="w-full max-w-2xl rounded-3xl bg-navy-light border border-white/10 p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-white">{editingJob ? "Edit Job" : "Create Job"}</h2>
-                <p className="text-sm text-gray-400">Use backend job admin controls to keep listings up to date.</p>
+                <h2 className="text-xl font-semibold text-white">
+                  {editingJob ? "Edit Job" : "Create Job"}
+                </h2>
+
+                <p className="text-sm text-gray-400">
+                  Use backend job admin controls to keep listings up to
+                  date.
+                </p>
               </div>
-              <button onClick={closeModal} className="text-gray-400 hover:text-white">
+
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-white"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -207,58 +337,93 @@ function AdminJobsManagement() {
                 label="Job Title"
                 placeholder="Frontend Developer"
                 value={form.title}
-                onChange={(e) => handleFieldChange("title", e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange("title", e.target.value)
+                }
                 required
               />
+
               <Input
                 label="Company"
                 placeholder="JobReach AI"
                 value={form.company}
-                onChange={(e) => handleFieldChange("company", e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange("company", e.target.value)
+                }
                 required
               />
+
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
                   label="Location"
                   placeholder="Bangalore, India"
                   value={form.location}
-                  onChange={(e) => handleFieldChange("location", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("location", e.target.value)
+                  }
                 />
+
                 <Input
                   label="Job Type"
                   placeholder="Full-time"
                   value={form.type}
-                  onChange={(e) => handleFieldChange("type", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("type", e.target.value)
+                  }
                 />
               </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
                   label="Salary"
                   placeholder="₹12,00,000 - ₹18,00,000"
                   value={form.salary}
-                  onChange={(e) => handleFieldChange("salary", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("salary", e.target.value)
+                  }
                 />
+
                 <Input
                   label="Status"
                   placeholder="active"
                   value={form.status}
-                  onChange={(e) => handleFieldChange("status", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("status", e.target.value)
+                  }
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Description
+                </label>
+
                 <textarea
-                  value={form.description}
-                  onChange={(e) => handleFieldChange("description", e.target.value)}
                   rows={5}
+                  value={form.description}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      "description",
+                      e.target.value
+                    )
+                  }
                   className="w-full rounded-2xl border border-white/20 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent"
                   placeholder="Write the job description and requirements here..."
                 />
               </div>
 
-              <div className="flex flex-wrap gap-3 justify-end pt-2">
-                <Button type="button" variant="outline" onClick={closeModal}>Cancel</Button>
-                <Button type="submit" loading={saving}>{editingJob ? "Update Job" : "Create Job"}</Button>
+              <div className="flex justify-end gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </Button>
+
+                <Button type="submit" loading={saving}>
+                  {editingJob ? "Update Job" : "Create Job"}
+                </Button>
               </div>
             </form>
           </div>
