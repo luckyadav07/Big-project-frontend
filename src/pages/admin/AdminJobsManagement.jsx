@@ -14,6 +14,9 @@ import {
 
 function AdminJobsManagement() {
   const [jobs, setJobs] = useState([]);
+  const [search, setSearch] = useState("");
+  const [companyFilter, setCompanyFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -38,7 +41,24 @@ function AdminJobsManagement() {
   }, []);
 
   const getJobId = (job) => job?.id || job?._id;
+  const companies = [...new Set(jobs.map((job) => job.company).filter(Boolean))];
+  const locations = [...new Set(jobs.map((job) => job.location).filter(Boolean))];
+  const filteredJobs = jobs.filter((job) => {
+  const keyword = search.toLowerCase();
 
+  const matchesSearch =
+    job.title?.toLowerCase().includes(keyword) ||
+    job.company?.toLowerCase().includes(keyword) ||
+    job.location?.toLowerCase().includes(keyword);
+
+  const matchesCompany =
+    !companyFilter || job.company === companyFilter;
+
+  const matchesLocation =
+    !locationFilter || job.location === locationFilter;
+
+  return matchesSearch && matchesCompany && matchesLocation;
+});
   const fetchJobs = async () => {
     setLoading(true);
     setError("");
@@ -76,10 +96,11 @@ function AdminJobsManagement() {
   title: "",
   company: "",
   location: "",
-  type: "Full-time",
-  salary: "",
-  description: "",
-  status: "active",
+  skills: "",
+  stipend: "",
+  deadline: "",
+  duration: "",
+  jobUrl: "",
 });
     setError("");
     setModalOpen(true);
@@ -243,7 +264,44 @@ function AdminJobsManagement() {
           Create Job
         </Button>
       </div>
+      <div className="mb-6 flex flex-col md:flex-row gap-4">
 
+        <Input
+          placeholder="🔍 Search jobs..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1"
+        />
+
+        <select
+          value={companyFilter}
+          onChange={(e) => setCompanyFilter(e.target.value)}
+          className="rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-white"
+        >
+          <option value="">All Companies</option>
+
+          {companies.map((company) => (
+            <option key={company} value={company}>
+              {company}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={locationFilter}
+          onChange={(e) => setLocationFilter(e.target.value)}
+          className="rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-white"
+        >
+          <option value="">All Locations</option>
+
+          {locations.map((location) => (
+            <option key={location} value={location}>
+              {location}
+            </option>
+          ))}
+        </select>
+
+      </div>
       {error && (
         <div className="mb-4 rounded-lg border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-red-200">
           {error}
@@ -255,7 +313,7 @@ function AdminJobsManagement() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-gray-400 bg-white/5">
-                <th className="px-4 py-3">Job ID</th>
+                <th className="px-4 py-3">S.No</th>
                 <th className="px-4 py-3">Title</th>
                 <th className="px-4 py-3">Company</th>
                 <th className="px-4 py-3">Location</th>
@@ -264,7 +322,7 @@ function AdminJobsManagement() {
               </tr>
             </thead>
 
-            <tbody>
+      <tbody>
               {loading ? (
                 <tr>
                   <td
@@ -274,7 +332,7 @@ function AdminJobsManagement() {
                     Loading jobs...
                   </td>
                 </tr>
-              ) : !Array.isArray(jobs) || jobs.length === 0 ? (
+              ) : !Array.isArray(filteredJobs) || filteredJobs.length === 0 ? (
                 <tr>
                   <td
                     colSpan="6"
@@ -285,13 +343,13 @@ function AdminJobsManagement() {
                   </td>
                 </tr>
               ) : (
-                jobs.map((job) => (
+                filteredJobs.map((job, index) => (
                   <tr
                     key={getJobId(job)}
                     className="border-t border-white/5 hover:bg-white/5"
                   >
                     <td className="px-4 py-3 text-gray-400">
-                      {getJobId(job)}
+                      {index + 1}
                     </td>
 
                     <td className="px-4 py-3 text-white">
