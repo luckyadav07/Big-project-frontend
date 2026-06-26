@@ -3,12 +3,13 @@ import { ADMIN } from "../api/endpoints.js";
 
 const extractArray = (data, key) => {
     if (Array.isArray(data)) return data;
-    if (data && typeof data === "object" && Array.isArray(data[key])) {
-        return data[key];
-    }
-    if (data && typeof data === "object" && Array.isArray(data.data?.[key])) {
-        return data.data[key];
-    }
+    if (!data || typeof data !== "object") return [];
+
+    if (Array.isArray(data[key])) return data[key];
+    if (Array.isArray(data.data?.[key])) return data.data[key];
+    if (Array.isArray(data.data)) return data.data;
+    if (Array.isArray(data.data?.data)) return data.data.data;
+
     return [];
 };
 
