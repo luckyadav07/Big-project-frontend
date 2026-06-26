@@ -34,6 +34,7 @@ export const CAREER_COACH = {
 };
 
 export const ADMIN = {
+  BASE: "/admin",
   USERS: "/admin/users",
   JOBS: "/admin/jobs",
 };
