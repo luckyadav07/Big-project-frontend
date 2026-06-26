@@ -13,6 +13,7 @@ import JobDetailPage from "./pages/job/JobDetailPage.jsx";
 import RecommendedJobsPage from "./pages/job/RecommendedJobsPage.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import AdminJobsManagement from "./pages/admin/AdminJobsManagement.jsx";
+import AdminUsersManagement from "./pages/admin/AdminUsersManagement.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import GuestRoute from "./components/GuestRoute.jsx";
@@ -42,6 +43,7 @@ function App() {
       <Route element={<ProtectedRoute adminOnly />}>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/jobs" element={<AdminJobsManagement />} />
+        <Route path="/admin/users" element={<AdminUsersManagement />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

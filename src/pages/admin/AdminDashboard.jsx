@@ -50,7 +50,7 @@ function AdminDashboard() {
           <h2 className="font-semibold text-white mb-4">Quick Actions</h2>
           <div className="space-y-2">
             <Link to="/admin/jobs" className="block rounded-lg bg-white/5 px-4 py-3 text-sm text-gray-300 hover:bg-white/10 transition">Manage Jobs →</Link>
-            <button className="block w-full text-left rounded-lg bg-white/5 px-4 py-3 text-sm text-gray-300 hover:bg-white/10 transition">Manage Users →</button>
+            <Link to="/admin/users" className="block rounded-lg bg-white/5 px-4 py-3 text-sm text-gray-300 hover:bg-white/10 transition">Manage Users →</Link>
           </div>
         </Card>
       </div>
