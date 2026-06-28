@@ -1,16 +1,18 @@
 import useUIStore from "../../store/uiStore.js";
-import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, Info } from "lucide-react";
 
 const icons = {
   success: CheckCircle,
   error: XCircle,
   warning: AlertCircle,
+  info: Info,
 };
 
 const colors = {
   success: "border-success/50 bg-success/10 text-success",
   error: "border-danger/50 bg-danger/10 text-danger",
   warning: "border-warning/50 bg-warning/10 text-warning",
+  info: "border-accent/50 bg-accent/10 text-accent"
 };
 
 function ToastContainer() {

@@ -18,6 +18,8 @@ import NotFoundPage from "./pages/NotFoundPage.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import GuestRoute from "./components/GuestRoute.jsx";
 import AdminReports from "./pages/admin/AdminReports.jsx";
+import AdminApplicationsManagement from "./pages/admin/AdminApplicationsManagement.jsx";
+
 
 function App() {
   return (
@@ -46,6 +48,7 @@ function App() {
         <Route path="/admin/jobs" element={<AdminJobsManagement />} />
         <Route path="/admin/users" element={<AdminUsersManagement />} />
         <Route path="/admin/reports" element={<AdminReports />}/>
+        <Route path="/admin/applications" element={<AdminApplicationsManagement />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

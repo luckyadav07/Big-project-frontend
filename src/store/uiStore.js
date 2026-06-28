@@ -1,15 +1,70 @@
 import { create } from "zustand";
 
-const useUIStore = create((set) => ({
+const useUIStore = create((set, get) => ({
   toasts: [],
-  addToast: (message, type = "success") => {
+
+  showToast: ({
+    message,
+    type = "success",
+    duration = 3000,
+  }) => {
+    if (!message) return;
+
+    // Prevent duplicate toasts
+    const exists = get().toasts.some(
+      (toast) => toast.message === message && toast.type === type
+    );
+
+    if (exists) return;
+
     const id = Date.now();
-    set((s) => ({ toasts: [...s.toasts, { id, message, type }] }));
+
+    set((state) => ({
+      toasts: [
+        ...state.toasts,
+        {
+          id,
+          message,
+          type,
+        },
+      ],
+    }));
+
     setTimeout(() => {
-      set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
-    }, 3000);
+      get().removeToast(id);
+    }, duration);
   },
-  removeToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+
+  success: (message, duration = 3000) =>
+    get().showToast({
+      message,
+      type: "success",
+      duration,
+    }),
+
+  error: (message, duration = 4000) =>
+    get().showToast({
+      message,
+      type: "error",
+      duration,
+    }),
+
+  warning: (message, duration = 3500) =>
+    get().showToast({
+      message,
+      type: "warning",
+      duration,
+    }),
+
+  removeToast: (id) =>
+    set((state) => ({
+      toasts: state.toasts.filter((toast) => toast.id !== id),
+    })),
+
+  clearToasts: () =>
+    set({
+      toasts: [],
+    }),
 }));
 
 export default useUIStore;

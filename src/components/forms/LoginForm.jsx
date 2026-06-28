@@ -5,33 +5,41 @@ import { useAuth } from "../../context/AuthContext.jsx";
 import { loginUser } from "../../services/authService.js";
 import Input from "../common/Input.jsx";
 import Button from "../common/Button.jsx";
+import useUIStore from "../../store/uiStore.js";
+import { getErrorMessage } from "../../utils/errorHandler.js";
 
 function LoginForm() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const { login } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
+  const showToast = useUIStore((s) => s.showToast);
   const onSubmit = async (data) => {
-    setError("");
-    setLoading(true);
-    try {
-      const res = await loginUser(data);
-      login(res.data.user, res.data.token);
-      navigate("/dashboard");
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+
+  try {
+    const res = await loginUser(data);
+
+    login(res.user, res.token);
+
+    showToast({
+      message: `Welcome back, ${res.user.name}!`,
+      type: "success",
+    });
+
+    navigate("/dashboard");
+  } catch (err) {
+    showToast({
+      message: getErrorMessage(err),
+      type: "error",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
-        <div className="rounded-lg bg-danger/20 border border-danger/50 px-4 py-3 text-sm text-red-200">{error}</div>
-      )}
       <Input
         label="Email"
         type="email"

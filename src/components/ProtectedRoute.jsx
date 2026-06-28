@@ -1,6 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import DashboardLayout from "./common/DashboardLayout.jsx";
+
+import UserDashboard from "./common/UserDashboard.jsx";
+import AdminDashboard from "./common/AdminDashboard.jsx";
 
 function ProtectedRoute({ adminOnly = false }) {
   const { token, loading, user } = useAuth();
@@ -16,18 +18,30 @@ function ProtectedRoute({ adminOnly = false }) {
     );
   }
 
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
-  // Ensure user exists and has proper structure
-  if (!user || typeof user !== "object") return <Navigate to="/login" replace />;
+  if (!user || typeof user !== "object") {
+    return <Navigate to="/login" replace />;
+  }
 
-  // Check admin access: user must have role === 'admin'
-  if (adminOnly && user.role !== "admin") return <Navigate to="/dashboard" replace />;
+  if (adminOnly && user.role !== "admin") {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (adminOnly) {
+    return (
+      <AdminDashboard>
+        <Outlet />
+      </AdminDashboard>
+    );
+  }
 
   return (
-    <DashboardLayout>
+    <UserDashboard>
       <Outlet />
-    </DashboardLayout>
+    </UserDashboard>
   );
 }
 

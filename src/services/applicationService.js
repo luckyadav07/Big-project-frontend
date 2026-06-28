@@ -2,12 +2,7 @@ import api from "./api.js";
 import { APPLICATIONS } from "../api/endpoints.js";
 
 export const getApplications = async () => {
-    console.log("Calling GET /applications");
-
     const response = await api.get(APPLICATIONS.LIST);
-
-    console.log(response);
-
     return response.data.data;
 };
 
@@ -19,4 +14,18 @@ export const applyJob = async (jobId) => {
 export const withdrawApplication = async (id) => {
     const response = await api.delete(APPLICATIONS.DELETE(id));
     return response.data;
+};
+
+export const getAllApplications = async () => {
+    const response = await api.get("/applications/admin");
+    return response.data.data;
+};
+
+export const updateApplicationStatus = async (id, status) => {
+    const response = await api.patch(
+        `/applications/${id}/status`,
+        { status }
+    );
+
+    return response.data.data;
 };
