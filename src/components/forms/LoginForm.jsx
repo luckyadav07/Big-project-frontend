@@ -19,15 +19,20 @@ function LoginForm() {
 
   try {
     const res = await loginUser(data);
-
+    console.log("LOGIN RESPONSE:", res);
+    console.log("USER:", res.user);
     login(res.user, res.token);
 
     showToast({
-      message: `Welcome back, ${res.user.name}!`,
-      type: "success",
+        message: `Welcome back, ${res.user.name}!`,
+        type: "success",
     });
 
-    navigate("/dashboard");
+    if (res.user.role === "admin") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/dashboard");
+    }
   } catch (err) {
     showToast({
       message: getErrorMessage(err),
