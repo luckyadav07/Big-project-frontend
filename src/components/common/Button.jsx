@@ -1,8 +1,8 @@
 const variants = {
   primary: "accent-gradient text-white hover:opacity-90 shadow-md",
-  secondary: "bg-white/10 text-white hover:bg-white/20 border border-white/20",
+  secondary:  "border transition",
   outline: "border border-accent text-accent hover:bg-accent/10 bg-transparent",
-  ghost: "text-neutral hover:text-white hover:bg-white/5",
+  ghost: "transition",
 };
 
 const sizes = {
@@ -28,7 +28,19 @@ function Button({
       disabled={disabled || loading}
       onClick={onClick}
       className={`inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
-      {...props}
+        style={
+          variant === "secondary"
+            ? {
+                background: "var(--glass-bg)",
+                color: "var(--text-primary)",
+                border: "1px solid var(--glass-border)",
+              }
+            : variant === "ghost"
+            ? {
+                color: "var(--text-secondary)",
+              }
+            : {}
+        }
     >
       {loading && (
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />

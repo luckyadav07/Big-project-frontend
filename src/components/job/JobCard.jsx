@@ -17,10 +17,12 @@ function JobCard({ job, onApply, onSave, showMatchScore = true, showMatchReason 
             {getInitials(job.company)}
           </div>
           <div className="flex-1 min-w-0">
-            <Link to={`/jobs/${id}`} className="text-base font-semibold text-white hover:text-accent transition line-clamp-1">
+            <Link to={`/jobs/${id}`} className="text-base font-semibold hover:text-accent transition line-clamp-1"
+style={{ color: "var(--text-primary)" }}>
               {job.title}
             </Link>
-            <p className="text-sm text-gray-400">{job.company}</p>
+            <p className="text-sm"
+style={{ color: "var(--text-secondary)" }}>{job.company}</p>
           </div>
           {showMatchScore && job.matchScore && (
             <Badge variant="info">{job.matchScore}% match</Badge>
@@ -28,21 +30,27 @@ function JobCard({ job, onApply, onSave, showMatchScore = true, showMatchReason 
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+          <span className="inline-flex items-center gap-1 text-xs"
+style={{ color: "var(--text-secondary)" }}>
             <MapPin size={12} /> {job.location}
           </span>
           {job.salary && <span className="text-xs text-success font-medium">{job.salary}</span>}
         </div>
 
         {showMatchReason && job.matchingSkills && (
-          <p className="text-xs text-gray-400 mb-3">
+          <p className="text-xs mb-3"
+style={{ color: "var(--text-secondary)" }}>
             {job.matchScore}% match: {job.matchingSkills.join(", ")} match your skills
           </p>
         )}
 
         <div className="flex flex-wrap gap-1.5 mb-4">
           {(job.skills || []).slice(0, 3).map((skill) => (
-            <span key={skill} className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-gray-400">{skill}</span>
+            <span key={skill} className="rounded-md px-2 py-0.5 text-xs"
+style={{
+  background: "var(--glass-bg)",
+  color: "var(--text-secondary)",
+}}>{skill}</span>
           ))}
         </div>
 

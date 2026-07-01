@@ -44,18 +44,29 @@ function UserDashboard({ children }) {
   const navItems = DASHBOARD_NAV;
 
   return (
-    <div className="min-h-screen bg-navy flex">
+    <div
+      className="min-h-screen flex transition-colors duration-300"
+      style={{ background: "var(--bg-main)", color: "var(--text-primary)" }}
+    >
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-navy-light border-r border-white/10 transform transition-transform lg:translate-x-0 lg:static ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-all duration-300 lg:translate-x-0 lg:static ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{
+          background: "var(--bg-sidebar)",
+          borderRight: "1px solid var(--border-color)",
+        }}
       >
-        <div className="flex items-center gap-2 px-6 h-16 border-b border-white/10">
+        <div className="flex items-center gap-2 px-6 h-16"
+        style={{
+          borderBottom: "1px solid var(--border-color)",
+        }}>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg accent-gradient">
             <Sparkles size={18} className="text-white" />
           </div>
 
-          <span className="text-lg font-bold text-white">{APP_NAME}</span>
+          <span className="text-lg font-bold"
+          style={{ color: "var(--text-primary)" }}>{APP_NAME}</span>
 
           <button
             className="ml-auto lg:hidden text-gray-400"
@@ -82,8 +93,11 @@ function UserDashboard({ children }) {
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
                   active
                     ? "bg-accent/20 text-accent"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                    : "hover:bg-white/5"
                 }`}
+                style={{
+                  color: active ? "var(--color-accent)" : "var(--text-secondary)",
+                }}
               >
                 <Icon size={18} />
                 {item.label}
@@ -99,11 +113,13 @@ function UserDashboard({ children }) {
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
+              <p className="text-sm font-medium truncate"
+                style={{ color: "var(--text-primary)" }}>
                 {user?.name}
               </p>
 
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs truncate"
+style={{ color: "var(--text-secondary)" }}>
                 {user?.email}
               </p>
             </div>
@@ -127,7 +143,11 @@ function UserDashboard({ children }) {
       )}
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-20 flex items-center gap-4 h-16 px-4 lg:px-8 bg-navy/95 backdrop-blur-md border-b border-white/10">
+        <header className="sticky top-0 z-20 flex items-center gap-4 h-16 px-4 lg:px-8 backdrop-blur-md transition-colors duration-300"
+style={{
+  background: "color-mix(in srgb, var(--bg-main) 95%, transparent)",
+  borderBottom: "1px solid var(--border-color)",
+}}>
           <button
             className="lg:hidden text-gray-400"
             onClick={() => setSidebarOpen(true)}
