@@ -16,7 +16,7 @@ function JobDetailPage() {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
-  const addToast = useUIStore((s) => s.addToast);
+  const showToast = useUIStore((s) => s.showToast);
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -38,12 +38,12 @@ function JobDetailPage() {
 
     await applyJob(job._id);
 
-    addToast("Application submitted successfully!", "success");
+    showToast("Application submitted successfully!", "success");
   } catch (err) {
     const message =
       err.response?.data?.message || "Failed to apply";
 
-    addToast(message, "error");
+    showToast(message, "error");
   } finally {
     setApplying(false);
   }
@@ -118,7 +118,7 @@ function JobDetailPage() {
             >
               {applying ? "Applying..." : "Apply Now"}
             </Button>
-            <Button variant="outline" className="w-full mb-2" onClick={() => addToast("Job saved!", "success")}>
+            <Button variant="outline" className="w-full mb-2" onClick={() => showToast("Job saved!", "success")}>
               <Bookmark size={16} /> Save Job
             </Button>
             <Button variant="secondary" className="w-full"><Share2 size={16} /> Share</Button>

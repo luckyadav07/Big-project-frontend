@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Briefcase, Phone, Target, UserCheck } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
@@ -8,15 +8,91 @@ import Card from "../../components/common/Card.jsx";
 import Skeleton from "../../components/common/Skeleton.jsx";
 import useJobStore from "../../store/jobStore.js";
 import useUIStore from "../../store/uiStore.js";
+import { getApplications, applyJob } from "../../services/applicationService.js";
 
 function DashboardPage() {
   const { user } = useAuth();
   const { recommendedJobs, loading, error, fetchRecommended } = useJobStore();
-  const addToast = useUIStore((s) => s.addToast);
+  const showToast = useUIStore((s) => s.showToast);
+  const [applications, setApplications] = useState([]);
+
+  const handleApply = async (job) => {
+     console.log("Apply clicked", job);
+  try {
+    await applyJob(job.id || job._id);
+
+    showToast({
+      message: "Application submitted!",
+      type: "success",
+    });
+
+    // Reload applications
+    const data = await getApplications();
+    setApplications(data);
+
+  } catch (err) {
+  console.log("ERROR RESPONSE:", err.response);
+  console.log("DATA:", err.response?.data);
+  console.log("MESSAGE:", err.response?.data?.message);
+
+  showToast({
+    message:
+      err.response?.data?.message || "Failed to apply.",
+    type: "error",
+  });
+}
+};  
 
   useEffect(() => {
-    fetchRecommended();
-  }, [fetchRecommended]);
+  fetchRecommended();
+
+
+  const loadApplications = async () => {
+    try {
+      const data = await getApplications();
+      setApplications(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  loadApplications();
+}, [fetchRecommended]);
+
+
+  const jobsApplied = applications.length;
+
+  const interviewCalls = applications.filter(
+    (app) => app.status === "Interview"
+  ).length;
+
+  const avgMatchScore =
+    recommendedJobs.length > 0
+      ? Math.round(
+          recommendedJobs.reduce(
+            (sum, job) => sum + (job.matchScore || 0),
+            0
+          ) / recommendedJobs.length
+        )
+      : 0;
+
+  const profileFields = [
+    user?.name,
+    user?.email,
+    user?.phone,
+    user?.resume,
+    user?.skills?.length > 0,
+  ];
+
+  const completedFields = profileFields.filter(Boolean).length;
+
+  const profileCompletion = Math.round(
+    (completedFields / profileFields.length) * 100
+  );
+
+  const appliedJobIds = new Set(
+  applications.map((app) => app.jobId?._id)
+  );
 
   return (
     <div className="space-y-8">
@@ -48,30 +124,32 @@ function DashboardPage() {
         <StatCard
           icon={<Briefcase size={20} />}
           title="Jobs Applied"
-          value="—"
-          trend="—"
+          value={jobsApplied}
+          trend={`${jobsApplied} applications`}
           color="green"
         />
 
         <StatCard
           icon={<Phone size={20} />}
           title="Interview Calls"
-          value="—"
-          trend="—"
+          value={interviewCalls}
+          trend={`${interviewCalls} interviews`}
           color="blue"
         />
 
         <StatCard
           icon={<Target size={20} />}
           title="Match Score Avg"
-          value="—"
+          value={`${avgMatchScore}%`}
+          trend="AI Recommendation"
           color="blue"
         />
 
         <StatCard
           icon={<UserCheck size={20} />}
           title="Profile Completion"
-          value="—"
+          value={`${profileCompletion}%`}
+          trend={`${completedFields}/${profileFields.length} fields`}
           color="yellow"
         />
       </div>
@@ -107,9 +185,8 @@ function DashboardPage() {
                 <JobCard
                   key={job.id || job._id}
                   job={job}
-                  onApply={() =>
-                    addToast("Application submitted!", "success")
-                  }
+                  onApply={handleApply}
+                  applied={appliedJobIds.has(job._id)}
                 />
               ))}
             </div>
@@ -162,24 +239,57 @@ function DashboardPage() {
 
       {/* Recent Applications */}
       <Card>
-        <h2
-          className="text-lg font-semibold mb-4"
-          style={{ color: "var(--text-primary)" }}
-        >
-          Recent Applications
-        </h2>
+          <h2
+            className="text-lg font-semibold mb-4"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Recent Applications
+          </h2>
 
-        <div
-          className="rounded-xl p-8 text-center text-sm"
-          style={{
-            background: "var(--glass-bg)",
-            border: "1px solid var(--glass-border)",
-            color: "var(--text-secondary)",
-          }}
-        >
-          No recent applications are available yet.
-        </div>
-      </Card>
+          {applications.length > 0 ? (
+            <div className="space-y-3">
+              {applications.slice(0, 5).map((app) => (
+                <div
+                  key={app._id}
+                  className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 py-3"
+                >
+                  <div>
+                    <p className="font-medium text-white">
+                      {app.jobId?.title}
+                    </p>
+
+                    <p className="text-sm text-gray-400">
+                      {app.jobId?.company}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <span
+                      className="rounded-full bg-accent/20 px-3 py-1 text-xs text-accent"
+                    >
+                      {app.status}
+                    </span>
+
+                    <p className="mt-1 text-xs text-gray-500">
+                      {new Date(app.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div
+              className="rounded-xl p-8 text-center text-sm"
+              style={{
+                background: "var(--glass-bg)",
+                border: "1px solid var(--glass-border)",
+                color: "var(--text-secondary)",
+              }}
+            >
+              No recent applications are available yet.
+            </div>
+          )}
+        </Card>
 
       {/* Skills */}
       <div>

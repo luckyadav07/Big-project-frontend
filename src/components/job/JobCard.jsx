@@ -6,7 +6,14 @@ import Badge from "../common/Badge.jsx";
 import Button from "../common/Button.jsx";
 import { getInitials } from "../../utils/formatters.js";
 
-function JobCard({ job, onApply, onSave, showMatchScore = true, showMatchReason = false }) {
+function JobCard({
+  job,
+  onApply,
+  onSave,
+  applied = false,
+  showMatchScore = true,
+  showMatchReason = false,
+}) {
   const id = job.id || job._id;
 
   return (
@@ -55,9 +62,17 @@ style={{
         </div>
 
         <div className="flex gap-2">
-          <Button size="sm" className="flex-1" onClick={() => onApply?.(job)}>Apply</Button>
-          <Button size="sm" variant="outline" onClick={() => onSave?.(job)}>
-            <Bookmark size={14} />
+          <Button
+            size="sm"
+            className={`flex-1 ${
+              applied
+                ? "bg-green-600 hover:bg-green-600 cursor-default"
+                : ""
+            }`}
+            disabled={applied}
+            onClick={() => onApply?.(job)}
+          >
+            {applied ? "✓ Applied" : "Apply"}
           </Button>
         </div>
       </Card>

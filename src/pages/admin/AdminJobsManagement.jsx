@@ -34,7 +34,7 @@ function AdminJobsManagement() {
     jobUrl: "",
   });
 
-  const addToast = useUIStore((s) => s.addToast);
+  const showToast = useUIStore((s) => s.showToast);
 
   useEffect(() => {
     fetchJobs();
@@ -196,7 +196,7 @@ function AdminJobsManagement() {
         )
       );
 
-      addToast("Job updated successfully");
+      showToast("Job updated successfully");
     } else {
       const response = await createAdminJob(payload);
 
@@ -208,7 +208,7 @@ function AdminJobsManagement() {
 
       setJobs((prev) => [createdJob, ...prev]);
 
-      addToast("Job created successfully");
+      showToast("Job created successfully");
     }
 
     closeModal();
@@ -235,9 +235,9 @@ function AdminJobsManagement() {
         )
       );
 
-      addToast("Job removed successfully");
+      showToast("Job removed successfully");
     } catch (err) {
-      addToast(
+      showToast(
         err.response?.data?.message ||
           err.message ||
           "Unable to delete job.",

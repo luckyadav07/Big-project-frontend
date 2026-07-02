@@ -24,7 +24,7 @@ function AdminUsersManagement() {
     const [deleteUserTarget, setDeleteUserTarget] = useState(null);
     const [modalError, setModalError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const addToast = useUIStore((s) => s.addToast);
+    const showToast = useUIStore((s) => s.showToast);
 
     const getUserId = useCallback((user) => user?.id || user?._id, []);
 
@@ -105,14 +105,14 @@ function AdminUsersManagement() {
             } else {
                 await fetchUsers();
             }
-            addToast("User role updated successfully");
+            showToast("User role updated successfully");
             closeRoleModal();
         } catch (err) {
             setModalError(getErrorMessage(err, "Unable to update user role."));
         } finally {
             setSaving(false);
         }
-    }, [selectedRole, selectedUser, getErrorMessage, fetchUsers, closeRoleModal, getUserId, addToast]);
+    }, [selectedRole, selectedUser, getErrorMessage, fetchUsers, closeRoleModal, getUserId, showToast]);
 
     const handleDeleteConfirm = useCallback(async () => {
         if (!deleteUserTarget) return;
@@ -122,14 +122,14 @@ function AdminUsersManagement() {
         try {
             await deleteUser(getUserId(deleteUserTarget));
             setUsers((prev) => prev.filter((item) => getUserId(item) !== getUserId(deleteUserTarget)));
-            addToast("User deleted successfully");
+            showToast("User deleted successfully");
             closeDeleteModal();
         } catch (err) {
             setModalError(getErrorMessage(err, "Unable to delete user."));
         } finally {
             setSaving(false);
         }
-    }, [deleteUserTarget, getErrorMessage, getUserId, addToast, closeDeleteModal]);
+    }, [deleteUserTarget, getErrorMessage, getUserId, showToast, closeDeleteModal]);
 
     const filteredUsers = useMemo(() => {
         const query = searchTerm.trim().toLowerCase();

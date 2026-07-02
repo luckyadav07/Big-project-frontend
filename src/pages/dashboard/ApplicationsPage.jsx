@@ -18,7 +18,7 @@ function ApplicationsPage() {
   const [sortBy, setSortBy] = useState("newest");
   const [search, setSearch] = useState("");
 
-  const addToast = useUIStore((s) => s.addToast);
+  const showToast = useUIStore((s) => s.showToast);
 
   useEffect(() => {
     loadApplications();
@@ -35,7 +35,7 @@ function ApplicationsPage() {
       console.error(err);
 
       if (err.response?.status !== 404) {
-        addToast("Failed to load applications", "error");
+        showToast("Failed to load applications", "error");
       }
 
       setApplications([]);
@@ -52,10 +52,13 @@ function ApplicationsPage() {
         prev.filter((app) => app._id !== id)
       );
 
-      addToast("Application withdrawn", "success");
+      showToast({
+  message: "Application withdrawn!",
+  type: "success",
+});
     } catch (err) {
       console.error(err);
-      addToast("Failed to withdraw application", "error");
+      showToast("Failed to withdraw application", "error");
     }
   };
 

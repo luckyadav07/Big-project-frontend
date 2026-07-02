@@ -3,37 +3,43 @@ import { create } from "zustand";
 const useUIStore = create((set, get) => ({
   toasts: [],
 
-  showToast: ({
-    message,
-    type = "success",
-    duration = 3000,
-  }) => {
-    if (!message) return;
+ showToast: ({
+  message,
+  type = "success",
+  duration = 3000,
+}) => {
+  console.log("SHOW TOAST:", message, type);
 
-    // Prevent duplicate toasts
-    const exists = get().toasts.some(
-      (toast) => toast.message === message && toast.type === type
-    );
+  if (!message) return;
 
-    if (exists) return;
+  const exists = get().toasts.some(
+    (toast) => toast.message === message && toast.type === type
+  );
 
-    const id = Date.now();
+  if (exists) {
+    console.log("Duplicate toast prevented");
+    return;
+  }
 
-    set((state) => ({
-      toasts: [
-        ...state.toasts,
-        {
-          id,
-          message,
-          type,
-        },
-      ],
-    }));
+  const id = Date.now();
 
-    setTimeout(() => {
-      get().removeToast(id);
-    }, duration);
-  },
+  set((state) => ({
+    toasts: [
+      ...state.toasts,
+      {
+        id,
+        message,
+        type,
+      },
+    ],
+  }));
+
+  console.log("Current toasts:", get().toasts);
+
+  setTimeout(() => {
+    get().removeToast(id);
+  }, duration);
+},
 
   success: (message, duration = 3000) =>
     get().showToast({

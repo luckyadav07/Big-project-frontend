@@ -6,7 +6,7 @@ import useUIStore from "../../store/uiStore.js";
 
 function RecommendedJobsPage() {
   const { recommendedJobs, loading, fetchRecommended } = useJobStore();
-  const addToast = useUIStore((s) => s.addToast);
+  const showToast = useUIStore((s) => s.showToast);
   const [sortBy, setSortBy] = useState("match");
 
   useEffect(() => {
@@ -41,7 +41,7 @@ function RecommendedJobsPage() {
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {sorted.map((job) => (
-            <JobCard key={job.id || job._id} job={job} showMatchReason onApply={() => addToast("Application submitted!", "success")} />
+            <JobCard key={job.id || job._id} job={job} showMatchReason onApply={() => showToast("Application submitted!", "success")} />
           ))}
         </div>
       )}

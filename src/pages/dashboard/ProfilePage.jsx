@@ -9,7 +9,7 @@ import { uploadResume } from "../../services/resumeService.js";
 
 function ProfilePage() {
   const { user } = useAuth();
-  const addToast = useUIStore((s) => s.addToast);
+  const showToast = useUIStore((s) => s.showToast);
   const [skills, setSkills] = useState(["React", "JavaScript", "CSS"]);
   const [skillInput, setSkillInput] = useState("");
   const [saving, setSaving] = useState(false);
@@ -21,7 +21,7 @@ function ProfilePage() {
     setSaving(true);
     setTimeout(() => {
       setSaving(false);
-      addToast("Profile updated successfully!", "success");
+      showToast("Profile updated successfully!", "success");
     }, 1000);
   };
 
@@ -38,11 +38,11 @@ function ProfilePage() {
   if (!file) return;
 
   if (file.type !== "application/pdf") {
-  addToast("Please upload a PDF file.", "error");
+  showToast("Please upload a PDF file.", "error");
   return;
 }
   if (file.size > 5 * 1024 * 1024) {
-  addToast("Resume must be smaller than 5 MB.", "error");
+  showToast("Resume must be smaller than 5 MB.", "error");
   return;
 }
 
@@ -58,10 +58,10 @@ function ProfilePage() {
     setResume(file);
     setResumeData(data);
 
-    addToast("Resume uploaded successfully!", "success");
+    showToast("Resume uploaded successfully!", "success");
   } catch (err) {
     console.error(err);
-    addToast("Resume upload failed", "error");
+    showToast("Resume upload failed", "error");
   } finally {
     setUploading(false);
   }
