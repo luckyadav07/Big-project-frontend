@@ -21,18 +21,27 @@ function LoginForm() {
     const res = await loginUser(data);
     console.log("LOGIN RESPONSE:", res);
     console.log("USER:", res.user);
+    console.log("ROLE:", res.user.role);
+
     login(res.user, res.token);
+    console.log("Before navigate");
+
+    if (res.user.role === "admin") {
+      console.log("Going to ADMIN");
+      navigate("/admin");
+    } else {
+      console.log("Going to USER");
+      navigate("/dashboard");
+    }
+
+console.log("After navigate");
 
     showToast({
         message: `Welcome back, ${res.user.name}!`,
         type: "success",
     });
 
-    if (res.user.role === "admin") {
-      navigate("/admin/dashboard");
-    } else {
-      navigate("/dashboard");
-    }
+    
   } catch (err) {
     showToast({
       message: getErrorMessage(err),

@@ -6,6 +6,12 @@ import AdminDashboard from "./common/AdminDashboard.jsx";
 
 function ProtectedRoute({ adminOnly = false }) {
   const { token, loading, user } = useAuth();
+  console.log("===== ProtectedRoute =====");
+  console.log("Path:", window.location.pathname);
+  console.log("Token:", token);
+  console.log("User:", user);
+  console.log("Role:", user?.role);
+  console.log("Admin Only:", adminOnly);
 
   if (loading) {
     return (

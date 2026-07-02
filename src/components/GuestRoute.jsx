@@ -9,8 +9,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const GuestRoute = ({ children }) => {
-  const { token, loading } = useAuth();
-
+  const { token, user, loading } = useAuth();
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-navy">
@@ -20,8 +19,13 @@ const GuestRoute = ({ children }) => {
   }
 
   if (token) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  return (
+    <Navigate
+      to={user?.role === "admin" ? "/admin" : "/dashboard"}
+      replace
+    />
+  );
+}
 
   return children;
 };
